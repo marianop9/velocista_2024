@@ -1,0 +1,54 @@
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.1/css/bulma.min.css'>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h2>ESP PID CONTROLLER</h2>
+  <div id="chart-temperature" class="container"></div>
+  <div id="chart-humidity" class="container"></div>
+  <div id="chart-pressure" class="container"></div>
+
+<iframe style="display:none" name="hidden-form"></iframe>
+
+<div class="content">
+        <div class="card-grid">
+            <div class="card">
+                <p class="card-title">Kp</p>
+                <p class="switch">
+                    <form action="/get" target="hidden-form">
+                    Kp: <input type="text" name="1">
+                    <input type="submit" value="Submit" onclick="getKp()">
+                    </form>
+                </p>
+                <p class="state">Current Value:<span id="Kp">0</span></p>
+            </div>
+            <div class="card">
+                <p class="card-title">Ki</p>
+                <p class="switch">
+                    <form action="/get" target="hidden-form">
+                    Ki: <input type="text" name="2">
+                    <input type="submit" value="Submit" onclick="getKi()">
+                    </form>
+                </p>
+                <p class="state">Current Value:<span id="Ki">0</span></p>
+            </div>
+            <div class="card">
+                <p class="card-title">Kd</p>
+                <p class="switch">
+                    <form action="/get" target="hidden-form">
+                    Kd: <input type="text" name="3">
+                    <input type="submit" value="Submit" onclick="getKd()">
+                    </form>
+                </p>
+                <p class="state">Current Value:<span id="Kd">0</span></p>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="script.js"></script>
+
+</html>
