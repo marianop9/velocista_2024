@@ -8,8 +8,8 @@
 int sensorsEnablePin = 4;
 int sensorPins[8] = {35, 32, 33,  25, 26, 27, 14, 12};
 
-#define WIFI_SSID "Fibertel WiFi272 2.4GHz"
-#define WIFI_PWD "00443299212"
+#define WIFI_SSID "Fibertel WiFi709 2.4GHz"
+#define WIFI_PWD "01429015004"
 
 extern "C" {
     void app_main();
