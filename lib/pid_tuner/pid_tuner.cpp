@@ -1,10 +1,13 @@
 #include "pid_tuner.h"
+#include "pid_controller/pid_contorller.h"
 
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 
 AsyncWebServer server(80);
 PIDController pidController;
+
+static const char *TAG = "PIDTuner";
 
 void pid_tuner_set_endpoints();
 
@@ -60,11 +63,11 @@ void pid_tuner_set_endpoints() {
         AsyncWebParameter *p = request->getParam("param");
 
         if (p == nullptr) {
-            ESP_LOGI("param", "param was null");
+            ESP_LOGI(TAG, "param was null");
             return;
         }
 
-        ESP_LOGI("get-param", "got param: %s=%s", p->name().c_str(),
+        ESP_LOGI(TAG, "got param: %s=%s", p->name().c_str(),
                  p->value().c_str());
 
         // String pvalue = p->value();
@@ -72,13 +75,13 @@ void pid_tuner_set_endpoints() {
 
         int value = pidController.getParam(paramType);
 
-        ESP_LOGI("get-param", "got value %d", value);
+        ESP_LOGI(TAG, "got value %d", value);
 
         request->send(200, "text/plain", String(value));
     });
 
     server.on("/set", HTTP_POST, [](AsyncWebServerRequest *request) {
-        // retrieve POST paramater
+        // retrieve paramaters
         if (!request->hasParam("param")) {
             request->send(422, "text/plain", "expected param in querystring");
             return;
@@ -103,5 +106,9 @@ void pid_tuner_set_endpoints() {
         pidController.setParam(paramType, paramValue);
 
         request->send(200, "text/plain", String(paramValue));
+    });
+
+    server.on("/getError", HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", String(pidController.getLastError()));
     });
 }
