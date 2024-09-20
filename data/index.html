@@ -4,23 +4,33 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
 </head>
 
 <body class="section">
     <div class="container">
         <h1 class="title">VELOCISTA_V2 - PID CONTROLLER</h1>
-        <!-- <div id="chart-temperature" class="container" style="max-width: 60%; max-height: 300px;"></div> -->
-        <!-- <div id="chart-humidity" class="container"></div>
-        <div id="chart-pressure" class="container"></div> -->
 
-        <!-- <iframe style="display:none" name="hidden-form"></iframe> -->
+        <div class="columns">
+            <div class="column is-two-thirds">
+                <canvas id="errorChart"></canvas>
+            </div>
+            <div class="column is-one-third">
+                <div class="is-flex is-flex-direction-column is-justify-content-center" style="height: 100%;">
+                    <label class="checkbox">
+                        <input type="checkbox" id="pollCheckbox" />
+                        Poll error
+                    </label>
+                </div>
+            </div>
+        </div>
 
-        <div class="grid">
-            <div class="cell">
+
+        <div class="columns">
+            <div class="column is-one-third">
                 <div class="card">
                     <div class="card-header">
                         <p class="card-header-title is-centered">Kp</p>
@@ -42,14 +52,14 @@
                     </div>
                 </div>
             </div>
-            <div class="cell">
+            <div class="column is-one-third">
                 <div class="card">
                     <div class="card-header">
                         <p class="card-header-title is-centered">Ki</p>
                     </div>
                     <div class="card-content p-4">
                         <p class="state">Current Value: <span id="ki">0</span></p>
-                        
+
                         <form id="formKi">
                             <div class="field">
                                 <label class="label" for="value">Ki</label>
@@ -62,7 +72,7 @@
                     </div>
                 </div>
             </div>
-            <div class="cell">
+            <div class="column is-one-third">
                 <div class="card">
                     <div class="card-header">
                         <p class="card-header-title is-centered">Kd</p>
@@ -82,26 +92,6 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="card">
-            <p class="card-title">Ki</p>
-            <p class="switch">
-            <form action="/get" target="hidden-form">
-                Ki: <input type="text" name="2">
-                <input type="submit" value="Submit" onclick="getKi()">
-            </form>
-            </p>
-            <p class="state">Current Value:<span id="Ki">0</span></p>
-        </div>
-        <div class="card">
-            <p class="card-title">Kd</p>
-            <p class="switch">
-            <form action="/get" target="hidden-form">
-                Kd: <input type="text" name="3">
-                <input type="submit" value="Submit" onclick="getKd()">
-            </form>
-            </p>
-            <p class="state">Current Value:<span id="Kd">0</span></p>
-        </div> -->
     </div>
 </body>
 
