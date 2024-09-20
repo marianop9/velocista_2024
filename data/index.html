@@ -1,51 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://code.highcharts.com/highcharts.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel='stylesheet' href='https://unpkg.com/bulma@0.9.1/css/bulma.min.css'>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
 </head>
-<body>
-  <h2>ESP PID CONTROLLER</h2>
-  <div id="chart-temperature" class="container"></div>
-  <div id="chart-humidity" class="container"></div>
-  <div id="chart-pressure" class="container"></div>
 
-<iframe style="display:none" name="hidden-form"></iframe>
+<body class="section">
+    <div class="container">
+        <h1 class="title">VELOCISTA_V2 - PID CONTROLLER</h1>
+        <!-- <div id="chart-temperature" class="container" style="max-width: 60%; max-height: 300px;"></div> -->
+        <!-- <div id="chart-humidity" class="container"></div>
+        <div id="chart-pressure" class="container"></div> -->
 
-<div class="content">
-        <div class="card-grid">
-            <div class="card">
-                <p class="card-title">Kp</p>
-                <p class="switch">
-                    <form action="/get" target="hidden-form">
-                    Kp: <input type="text" name="1">
-                    <input type="submit" value="Submit" onclick="getKp()">
-                    </form>
-                </p>
-                <p class="state">Current Value:<span id="Kp">0</span></p>
+        <!-- <iframe style="display:none" name="hidden-form"></iframe> -->
+
+        <div class="grid">
+            <div class="cell">
+                <div class="card">
+                    <div class="card-header">
+                        <p class="card-header-title is-centered">Kp</p>
+                    </div>
+                    <div class="card-content p-4">
+                        <p class="state">Current Value: <span id="kp">0</span></p>
+
+                        <form id="formKp" action="/get">
+                            <div class="field">
+                                <label class="label" for="value">Kp</label>
+                                <input type="text" class="input" name="value">
+                            </div>
+                            <div class="is-flex is-justify-content-end">
+                                <button type="submit" id="btnSubmit-kp" class="button is-primary">
+                                    Actualizar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="card">
-                <p class="card-title">Ki</p>
-                <p class="switch">
-                    <form action="/get" target="hidden-form">
-                    Ki: <input type="text" name="2">
-                    <input type="submit" value="Submit" onclick="getKi()">
-                    </form>
-                </p>
-                <p class="state">Current Value:<span id="Ki">0</span></p>
+            <div class="cell">
+                <div class="card">
+                    <div class="card-header">
+                        <p class="card-header-title is-centered">Ki</p>
+                    </div>
+                    <div class="card-content p-4">
+                        <p class="state">Current Value: <span id="ki">0</span></p>
+                        
+                        <form id="formKi">
+                            <div class="field">
+                                <label class="label" for="value">Ki</label>
+                                <input type="text" class="input" name="value">
+                            </div>
+                            <div class="is-flex is-justify-content-end">
+                                <button type="submit" id="btnSubmit-ki" class="button is-primary">Actualizar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="card">
-                <p class="card-title">Kd</p>
-                <p class="switch">
-                    <form action="/get" target="hidden-form">
-                    Kd: <input type="text" name="3">
-                    <input type="submit" value="Submit" onclick="getKd()">
-                    </form>
-                </p>
-                <p class="state">Current Value:<span id="Kd">0</span></p>
+            <div class="cell">
+                <div class="card">
+                    <div class="card-header">
+                        <p class="card-header-title is-centered">Kd</p>
+                    </div>
+                    <div class="card-content p-4">
+                        <p class="state">Current Value: <span id="kd">0</span></p>
+                        <form id="formKd">
+                            <div class="field">
+                                <label class="label" for="value">Kd</label>
+                                <input type="text" class="input" name="value">
+                            </div>
+                            <div class="is-flex is-justify-content-end">
+                                <button type="submit" id="btnSubmit-kd" class="button is-primary">Actualizar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
+        <!-- <div class="card">
+            <p class="card-title">Ki</p>
+            <p class="switch">
+            <form action="/get" target="hidden-form">
+                Ki: <input type="text" name="2">
+                <input type="submit" value="Submit" onclick="getKi()">
+            </form>
+            </p>
+            <p class="state">Current Value:<span id="Ki">0</span></p>
+        </div>
+        <div class="card">
+            <p class="card-title">Kd</p>
+            <p class="switch">
+            <form action="/get" target="hidden-form">
+                Kd: <input type="text" name="3">
+                <input type="submit" value="Submit" onclick="getKd()">
+            </form>
+            </p>
+            <p class="state">Current Value:<span id="Kd">0</span></p>
+        </div> -->
     </div>
 </body>
 

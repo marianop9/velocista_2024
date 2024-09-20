@@ -1,11 +1,20 @@
+#ifndef _PID_TUNER_H_
+#define _PID_TUNER_H_
+
+#include "Arduino.h"
+#include "freertos/FreeRTOS.h"
+
 void pid_tuner_init(const char *ssid, const char *pwd);
 
-enum PIDParam
+enum class PIDParam
 {
     Proportional = 0,
     Integral,
     Derivative,
+    InvalidParam
 };
+
+PIDParam PIDParamFromString(const char* str);
 
 class PIDController
 {
@@ -19,9 +28,20 @@ private:
 
     int adjdustment = 0;
 
-    portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    SemaphoreHandle_t _mutex;
 
 public:
+    PIDController() {
+        // semaphore is created in empty state. Must be given before it can be taken.
+        _mutex = xSemaphoreCreateBinary();
+
+        if (_mutex == NULL) {
+            ESP_LOGE("PIDController", "failed to initalize mutex");
+        } else {
+            xSemaphoreGive(_mutex);
+        }
+    }
+
     void setParam(PIDParam param, int value);
 
     int getParam(PIDParam param);
@@ -33,3 +53,5 @@ public:
         return adjdustment;
     }
 };
+
+#endif // _PID_TUNER_H_

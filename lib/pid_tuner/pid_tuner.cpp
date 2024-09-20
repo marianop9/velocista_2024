@@ -1,129 +1,107 @@
+#include "pid_tuner.h"
+
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
-#include "freertos/FreeRTOS.h"
-
-#include "pid_tuner.h"
 
 AsyncWebServer server(80);
 PIDController pidController;
 
 void pid_tuner_set_endpoints();
 
-PIDParam PIDParamFromString(const String &str)
-{
-    ESP_LOGI("PID param from string", "got param %s", str.c_str());
-    if (str.equals("kp"))
-        return Proportional;
-    else if (str.equals("ki"))
-        return Integral;
-    else
-        return Derivative;
-}
-
-
-void pid_tuner_init(const char *ssid, const char *pwd)
-{
+void pid_tuner_init(const char *ssid, const char *pwd) {
     WiFi.mode(WIFI_MODE_STA);
     WiFi.begin(ssid, pwd);
 
-    if (!SPIFFS.begin(true, "/storage"))
-    {
+    if (!SPIFFS.begin(true, "/storage")) {
         ESP_LOGE("FileSystem", "Failed to init SPIFFS.");
         return;
     }
 
-    if (WiFi.waitForConnectResult() == WL_CONNECTED)
-    {
+    if (WiFi.waitForConnectResult() == WL_CONNECTED) {
         ESP_LOGI("WiFi", "WiFi connected");
         ESP_LOGI("WiFi", "%s", WiFi.localIP().toString().c_str());
-    }
-    else
-    {
+    } else {
         ESP_LOGE("WiFi", "WiFi connection failed.");
         return;
     }
 
     pid_tuner_set_endpoints();
 
+    // temitas de CORS para probar la pagina desde la pc :)
+    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+
     server.begin();
 }
 
-void pid_tuner_set_endpoints()
-{
-    server.on("/", [](AsyncWebServerRequest *request)
-              { request->send(200, "text/plain", "Heello world!"); });
+void pid_tuner_set_endpoints() {
+    server.on("/", [](AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", "Heello world!");
+    });
 
-    server.on("/fs", [](AsyncWebServerRequest *request)
-              { request->send(SPIFFS, "/greeting.txt", "text/plain"); });
+    server.on("/fs", [](AsyncWebServerRequest *request) {
+        request->send(SPIFFS, "/greeting.txt", "text/plain");
+    });
 
-    server.on("/index.html", [](AsyncWebServerRequest *request)
-              { request->send(SPIFFS, "/index.html", "text/html"); });
+    server.on("/index.html", [](AsyncWebServerRequest *request) {
+        request->send(SPIFFS, "/index.html", "text/html");
+    });
 
-    server.on("/style.css", [](AsyncWebServerRequest *request)
-              { request->send(SPIFFS, "/style.css", "text/css"); });
+    server.on("/style.css", [](AsyncWebServerRequest *request) {
+        request->send(SPIFFS, "/style.css", "text/css");
+    });
 
-    server.on("/script.js", [](AsyncWebServerRequest *request)
-              { request->send(SPIFFS, "/script.js", "text/javascript"); });
+    server.on("/script.js", [](AsyncWebServerRequest *request) {
+        request->send(SPIFFS, "/script.js", "text/javascript");
+    });
 
-    server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (request->hasParam("param"))
-        {
-            AsyncWebParameter *p = request->getParam("param");
+    server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if (!request->hasParam("param")) return;
 
-            // String pvalue = p->value();
-            PIDParam param = PIDParamFromString(p->value());
+        AsyncWebParameter *p = request->getParam("param");
 
-            int value = pidController.getParam(param);
+        if (p == nullptr) {
+            ESP_LOGI("param", "param was null");
+            return;
+        }
 
-            request->send(200, "text/plain", String(value));
-        } });
-}
+        ESP_LOGI("get-param", "got param: %s=%s", p->name().c_str(),
+                 p->value().c_str());
 
-void PIDController::setParam(PIDParam param, int value)
-{
-    taskENTER_CRITICAL(&mux);
-    switch (param)
-    {
-    case Proportional:
-        kp = value;
-        break;
-    case Integral:
-        ki = value;
-        break;
-    case Derivative:
-        kd = value;
-        break;
-    default:
-        break;
-    }
-    taskEXIT_CRITICAL(&mux);
-}
+        // String pvalue = p->value();
+        PIDParam paramType = PIDParamFromString(p->value().c_str());
 
-int PIDController::getParam(PIDParam param)
-{
-    taskENTER_CRITICAL(&mux);
-    switch (param)
-    {
-    case Proportional:
-        return kp;
-    case Integral:
-        return ki;
-    case Derivative:
-        return kd;
-    default:
-        return -1;
-    }
-    taskEXIT_CRITICAL(&mux);
-}
+        int value = pidController.getParam(paramType);
 
-void PIDController::update(int error)
-{
-    P = error;
-    I = I + error;
-    D = error - lastError;
+        ESP_LOGI("get-param", "got value %d", value);
 
-    lastError = error;
+        request->send(200, "text/plain", String(value));
+    });
 
-    adjdustment = P * kp + I * ki + D * kd; // calculate the correction
+    server.on("/set", HTTP_POST, [](AsyncWebServerRequest *request) {
+        // retrieve POST paramater
+        if (!request->hasParam("param")) {
+            request->send(422, "text/plain", "expected param in querystring");
+            return;
+        }
+        if (!request->hasParam("value")) {
+            request->send(422, "text/plain",
+                          "expected param value in querystring");
+            return;
+        }
+
+        AsyncWebParameter *param = request->getParam("param");
+        AsyncWebParameter *value = request->getParam("value");
+
+        PIDParam paramType = PIDParamFromString(param->value().c_str());
+        if (paramType == PIDParam::InvalidParam) {
+            request->send(422, "text/plain", "received invalid PID param");
+            return;
+        }
+
+        int paramValue = value->value().toInt();
+
+        pidController.setParam(paramType, paramValue);
+
+        request->send(200, "text/plain", String(paramValue));
+    });
 }
