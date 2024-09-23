@@ -77,12 +77,13 @@ int PIDController::getParam(PIDParam param) const {
     return value;
 }
 
-void PIDController::update(int error) {
+int PIDController::update(int error) {
     P = error;
     I = I + error;
     D = error - lastError;
 
     lastError = error;
 
-    adjdustment = P * kp + I * ki + D * kd;  // calculate the correction
+    adjustment = P * kp + I * ki + D * kd;  // calculate the correction
+    return adjustment;
 }

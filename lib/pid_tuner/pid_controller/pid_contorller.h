@@ -14,11 +14,11 @@ class PIDController {
     int P = 0, I = 0, D = 0;
 
     // PID params
-    int kp = 1, ki = 2, kd = 3;
+    int kp = 1, ki = 0, kd = 0;
 
     int lastError = 0;
 
-    int adjdustment = 0;
+    int adjustment = 0;
 
     SemaphoreHandle_t _mutex;
 
@@ -29,11 +29,10 @@ class PIDController {
 
     int getParam(PIDParam param) const;
 
-    void update(int error);
+    int update(int error);
 
-    int getAdjustment() const { return adjdustment; }
+    int getAdjustment() const { return adjustment; }
 
-    int getLastError() const { return lastError; }
 };
 
 #endif  // _PID_CONTROLLER_H_
