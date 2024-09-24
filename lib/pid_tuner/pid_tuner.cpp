@@ -1,17 +1,19 @@
 #include "pid_tuner.h"
-#include "pid_controller/pid_contorller.h"
 
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 
 AsyncWebServer server(80);
-PIDController pidController;
 
 static const char *TAG = "PIDTuner";
 
 void pid_tuner_set_endpoints();
 
-void pid_tuner_init(const char *ssid, const char *pwd) {
+static PIDController *pidController = nullptr;
+
+void pid_tuner_init(const char *ssid, const char *pwd, PIDController *pidControllerInstance) {
+    pidController = pidControllerInstance;
+    
     WiFi.mode(WIFI_MODE_STA);
     WiFi.begin(ssid, pwd);
 
@@ -34,6 +36,7 @@ void pid_tuner_init(const char *ssid, const char *pwd) {
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
 
     server.begin();
+    ESP_LOGI("WiFi", "Server started...");
 }
 
 void pid_tuner_set_endpoints() {
@@ -73,7 +76,7 @@ void pid_tuner_set_endpoints() {
         // String pvalue = p->value();
         PIDParam paramType = PIDParamFromString(p->value().c_str());
 
-        int value = pidController.getParam(paramType);
+        int value = pidController->getParam(paramType);
 
         ESP_LOGI(TAG, "got value %d", value);
 
@@ -103,12 +106,12 @@ void pid_tuner_set_endpoints() {
 
         int paramValue = value->value().toInt();
 
-        pidController.setParam(paramType, paramValue);
+        pidController->setParam(paramType, paramValue);
 
         request->send(200, "text/plain", String(paramValue));
     });
 
     server.on("/getError", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(200, "text/plain", String(pidController.getLastError()));
+        request->send(200, "text/plain", String(pidController->getLastError()));
     });
 }

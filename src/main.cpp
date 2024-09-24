@@ -4,11 +4,13 @@
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-// #include "motor.h"
+
+#include "motor.h"
 #include "tcrt.h"
 extern "C" {
 #include "state_machine.h"
 }
+#include "pid_tuner.h"
 
 #define SENSOR_COUNT 8
 int sensorPins[SENSOR_COUNT] = {35, 32, 33, 25, 26, 27, 14, 12};
@@ -21,44 +23,65 @@ int sensorPins[SENSOR_COUNT] = {35, 32, 33, 25, 26, 27, 14, 12};
 
 // #define WIFI_SSID "Fibertel WiFi709 2.4GHz"
 // #define WIFI_PWD "01429015004"
-#define WIFI_SSID "Fibertel WiFi272 2.4GHz"
-#define WIFI_PWD "00443299212"
+// #define WIFI_SSID "Fibertel WiFi272 2.4GHz"
+// #define WIFI_PWD "00443299212"
+// #define WIFI_SSID "Utn_Libre Max"
+// #define WIFI_PWD ""
+#define WIFI_SSID "Nano"
+#define WIFI_PWD "mariano12"
 
 extern "C" {
 void app_main();
 }
 
+bool logError = false;
+
 TaskHandle_t mainTask = NULL;
 TaskHandle_t sensorTask = NULL;
+
+PIDController pidController;
 
 void tcrt_sensor_task(void *args) {
     struct tcrt_sensor_array_t *tcrt = tcrt_init(SENSOR_COUNT, sensorPins, PIN_SENSOR_ENABLE);
 
     while (1) {
         int32_t error = (int32_t)tcrt_calculate_error(tcrt);
+        // tcrt_log_readings(tcrt);
 
         xTaskNotify(mainTask, error, eSetValueWithOverwrite);
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }
 }
 
-void main_task(void *args) {
+void main_task(void *args) {    
+    motorInit(PIN_MOTOR_L, PIN_MOTOR_R);
     state_machine_init(PIN_BTN, PIN_LED);
 
-    printf("starting loop....\n");
-
     int32_t receivedErr = 0;
+    int motorDutyCycles[2] = {0};
+    
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1500));
-
-        if (state_machine_is_stopped()) continue;
+        if (state_machine_is_stopped()) {
+            motorStop();
+            continue;
+        }
 
         // portMAX_DELAY blocks indefdently
-        xTaskNotifyWait(0x00, ULONG_MAX, (uint32_t *)&receivedErr, portMAX_DELAY);
+        // si la espera de la notificacion da timeout no actualiza
+        if (xTaskNotifyWait(0x00, ULONG_MAX, (uint32_t *)&receivedErr, 500/portTICK_PERIOD_MS) == pdFALSE)
+            continue;
 
-        printf("error: %d\n", receivedErr);
-        // tcrt_log_readings(tcrt);
+        pidController.update(receivedErr);
+
+        int adjustment = pidController.getAdjustment();
+        motorUpdate(pidController.getAdjustment());
+
+        if (logError) {
+            printf("error: %d\n", receivedErr);
+            motorSimulateUpdate(adjustment, motorDutyCycles);
+            printf("dutyL: %d \t dutyR: %d\n", motorDutyCycles[0], motorDutyCycles[1]);
+        }
     }
 }
 
@@ -66,11 +89,11 @@ void app_main() {
     initArduino();
 
     // vTaskDelay(pdMS_TO_TICKS(1000));
-    // pid_tuner_init(WIFI_SSID, WIFI_PWD);
+    pid_tuner_init(WIFI_SSID, WIFI_PWD, &pidController);
 
     xTaskCreatePinnedToCore(tcrt_sensor_task, "Sensor readings task", configMINIMAL_STACK_SIZE * 4,
                             NULL, 5, &sensorTask, 1);
 
-    xTaskCreatePinnedToCore(main_task, "Main task", configMINIMAL_STACK_SIZE * 5, NULL, 5,
+    xTaskCreatePinnedToCore(main_task, "Motor update task", configMINIMAL_STACK_SIZE * 5, NULL, 5,
                             &mainTask, 0);
 }

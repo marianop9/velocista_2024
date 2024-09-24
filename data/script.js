@@ -8,7 +8,8 @@ window.onload = () => {
   document.getElementById('pollCheckbox').checked = false;
 }
 
-const baseUrl = 'http://192.168.0.143'
+// const baseUrl = 'http://192.168.0.143'
+const baseUrl = 'http://172.20.10.6'
 
 function getParamUrl(param) {
   return baseUrl + '/get?param=' + param;
@@ -148,11 +149,18 @@ function fetchError() {
       // recupera la fecha actual (mm:ss) y lo agrega al eje x
       const date = new Date();
       const label = `${date.getMinutes()}:${date.getSeconds()}`;
+      
       chart.data.labels.push(label);
-
       // agrega el valor del error al eje y
       chart.data.datasets[0].data.push(error);
 
+      // limite de lecturas
+      if (chart.data.labels.length > 15) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+
+      
       chart.update();
     })
     .catch(console.error);

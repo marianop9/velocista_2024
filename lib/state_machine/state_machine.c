@@ -27,7 +27,7 @@ void toggle_state() {
 
 void isr_handler() {
     btn_time = esp_timer_get_time();
-    if (btn_time - last_btn_time > 250) {
+    if (btn_time - last_btn_time > 300) {
         last_btn_time = btn_time;
 
         toggle_state();

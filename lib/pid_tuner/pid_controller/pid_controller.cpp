@@ -1,5 +1,6 @@
-#include "pid_contorller.h"
+#include "pid_controller.h"
 #include "string.h"
+#include "esp_log.h"
 
 static const char* TAG = "PIDController";
 
@@ -77,7 +78,7 @@ int PIDController::getParam(PIDParam param) const {
     return value;
 }
 
-int PIDController::update(int error) {
+void PIDController::update(int error) {
     P = error;
     I = I + error;
     D = error - lastError;
@@ -85,5 +86,4 @@ int PIDController::update(int error) {
     lastError = error;
 
     adjustment = P * kp + I * ki + D * kd;  // calculate the correction
-    return adjustment;
 }

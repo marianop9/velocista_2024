@@ -1,7 +1,6 @@
 #ifndef _PID_CONTROLLER_H_
 #define _PID_CONTROLLER_H_
 
-#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
@@ -14,7 +13,7 @@ class PIDController {
     int P = 0, I = 0, D = 0;
 
     // PID params
-    int kp = 1, ki = 0, kd = 0;
+    int kp = 10, ki = 0, kd = 0;
 
     int lastError = 0;
 
@@ -29,10 +28,11 @@ class PIDController {
 
     int getParam(PIDParam param) const;
 
-    int update(int error);
+    void update(int error);
 
     int getAdjustment() const { return adjustment; }
 
+    int getLastError() const { return lastError; }
 };
 
 #endif  // _PID_CONTROLLER_H_
