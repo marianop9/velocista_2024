@@ -7,7 +7,7 @@ const int PWMChannelLeft = 0;
 const int PWMChannelRight = 2;
 const int PWMResolution = 10;
 const int MAX_DUTY_CYCLE = (1 << PWMResolution) - 1;
-const int baseSpeed = 650;
+const int baseSpeed = 800;
 
 int dutyCycleL = baseSpeed;
 int dutyCycleR = baseSpeed;

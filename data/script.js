@@ -172,7 +172,7 @@ document.getElementById('pollCheckbox').addEventListener('change', (evt) => {
   const shouldPoll = evt.target.checked;
 
   if (shouldPoll) {
-    intervalId = setInterval(fetchError, 2000);
+    intervalId = setInterval(fetchError, 500);
   } else {
     clearInterval(intervalId);
     intervalId = null;

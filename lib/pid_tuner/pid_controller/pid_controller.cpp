@@ -85,5 +85,5 @@ void PIDController::update(int error) {
 
     lastError = error;
 
-    adjustment = P * kp + I * ki + D * kd;  // calculate the correction
+    adjustment = P * kp + I * ki + D * kd;  
 }

@@ -50,7 +50,7 @@ void tcrt_sensor_task(void *args) {
 
         xTaskNotify(mainTask, error, eSetValueWithOverwrite);
 
-        vTaskDelay(50 / portTICK_PERIOD_MS);
+        vTaskDelay(30 / portTICK_PERIOD_MS);
     }
 }
 
@@ -75,7 +75,7 @@ void main_task(void *args) {
         pidController.update(receivedErr);
 
         int adjustment = pidController.getAdjustment();
-        motorUpdate(pidController.getAdjustment());
+        motorUpdate(adjustment);
 
         if (logError) {
             printf("error: %d\n", receivedErr);

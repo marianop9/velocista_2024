@@ -1,6 +1,8 @@
 #include "tcrt.h"
 #include "Arduino.h"
 
+int lastError;
+
 struct tcrt_sensor_array_t* tcrt_init(int sensorCount, int* pins, int enablePin)
 {
     pinMode(enablePin, OUTPUT);
@@ -21,18 +23,28 @@ struct tcrt_sensor_array_t* tcrt_init(int sensorCount, int* pins, int enablePin)
 
 int tcrt_calculate_error(struct tcrt_sensor_array_t* tcrt) 
 {
-    int sensorWeights[8] = {-4, -3, -2, -1, 1, 2, 3, 4};
+    // Kp: 450, 850
+    //  int sensorWeights[8] = {-4, -3, -2, -1, 1, 2, 3, 4};
+    
+    int sensorWeights[8] = {-9, -5, -3, -1, 1, 3, 5, 9};
 
     int error = 0;
-    for (int i = 0; i < 8; i++)
+    bool hasLine = false;
+    for (int i = 0; i < tcrt->sensorCount; i++)
     {
         // solo suma los sensores activos (estado bajo)
         if(!digitalRead(tcrt->pins[i]))
         {
             error += sensorWeights[i];
+            hasLine = true;
         }
     }
 
+    if (!hasLine) {
+        return lastError;
+    }
+    
+    lastError = error;
     return error;    
 }
 
