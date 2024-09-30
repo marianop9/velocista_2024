@@ -15,9 +15,13 @@ class PIDController {
     // PID params
     int kp = 10, ki = 0, kd = 0;
 
+    int errorSum = 0;
     int lastError = 0;
 
-    int adjustment = 0;
+    const int maxErrorSum = 100;
+    const int minErrorSum = -100;
+
+    int output = 0;
 
     SemaphoreHandle_t _mutex;
 
@@ -30,7 +34,7 @@ class PIDController {
 
     void update(int error);
 
-    int getAdjustment() const { return adjustment; }
+    int getOutput() const { return output; }
 
     int getLastError() const { return lastError; }
 };

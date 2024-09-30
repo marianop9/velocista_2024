@@ -79,11 +79,14 @@ int PIDController::getParam(PIDParam param) const {
 }
 
 void PIDController::update(int error) {
-    P = error;
-    I = I + error;
-    D = error - lastError;
+    errorSum += error;
+    if (errorSum > maxErrorSum) {
+        errorSum = maxErrorSum;
+    } else if (errorSum < minErrorSum) {
+        errorSum = minErrorSum;
+    }
+
+    output = kp*error + ki*errorSum + kd*(error - lastError);
 
     lastError = error;
-
-    adjustment = P * kp + I * ki + D * kd;  
 }

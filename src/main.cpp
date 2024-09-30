@@ -23,23 +23,25 @@ int sensorPins[SENSOR_COUNT] = {35, 32, 33, 25, 26, 27, 14, 12};
 
 // #define WIFI_SSID "Fibertel WiFi709 2.4GHz"
 // #define WIFI_PWD "01429015004"
-// #define WIFI_SSID "Fibertel WiFi272 2.4GHz"
-// #define WIFI_PWD "00443299212"
+#define WIFI_SSID "Fibertel WiFi272 2.4GHz"
+#define WIFI_PWD "00443299212"
 // #define WIFI_SSID "Utn_Libre Max"
 // #define WIFI_PWD ""
-#define WIFI_SSID "Nano"
-#define WIFI_PWD "mariano12"
+// #define WIFI_SSID "Nano"
+// #define WIFI_PWD "mariano12"
+
+#define SAMPLE_TIME 500 // ms
 
 extern "C" {
 void app_main();
 }
 
-bool logError = false;
+#define LOG_ERROR true
 
 TaskHandle_t mainTask = NULL;
 TaskHandle_t sensorTask = NULL;
 
-PIDController pidController;
+PIDController pidController = PIDController();
 
 void tcrt_sensor_task(void *args) {
     struct tcrt_sensor_array_t *tcrt = tcrt_init(SENSOR_COUNT, sensorPins, PIN_SENSOR_ENABLE);
@@ -50,7 +52,7 @@ void tcrt_sensor_task(void *args) {
 
         xTaskNotify(mainTask, error, eSetValueWithOverwrite);
 
-        vTaskDelay(30 / portTICK_PERIOD_MS);
+        vTaskDelay(SAMPLE_TIME / portTICK_PERIOD_MS);
     }
 }
 
@@ -74,13 +76,14 @@ void main_task(void *args) {
 
         pidController.update(receivedErr);
 
-        int adjustment = pidController.getAdjustment();
-        motorUpdate(adjustment);
+        int adjustment = pidController.getOutput();
 
-        if (logError) {
+        if (LOG_ERROR) {
             printf("error: %d\n", receivedErr);
             motorSimulateUpdate(adjustment, motorDutyCycles);
             printf("dutyL: %d \t dutyR: %d\n", motorDutyCycles[0], motorDutyCycles[1]);
+        } else {
+            motorUpdate(adjustment);
         }
     }
 }
