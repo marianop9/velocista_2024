@@ -23,20 +23,20 @@ int sensorPins[SENSOR_COUNT] = {35, 32, 33, 25, 26, 27, 14, 12};
 
 // #define WIFI_SSID "Fibertel WiFi709 2.4GHz"
 // #define WIFI_PWD "01429015004"
-#define WIFI_SSID "Fibertel WiFi272 2.4GHz"
-#define WIFI_PWD "00443299212"
+// #define WIFI_SSID "Fibertel WiFi272 2.4GHz"
+// #define WIFI_PWD "00443299212"
 // #define WIFI_SSID "Utn_Libre Max"
 // #define WIFI_PWD ""
-// #define WIFI_SSID "Nano"
-// #define WIFI_PWD "mariano12"
+#define WIFI_SSID "Nano"
+#define WIFI_PWD "mariano12"
 
-#define SAMPLE_TIME 500 // ms
+#define SAMPLE_TIME 50 // ms
 
 extern "C" {
 void app_main();
 }
 
-#define LOG_ERROR true
+#define LOG_ERROR false
 
 TaskHandle_t mainTask = NULL;
 TaskHandle_t sensorTask = NULL;

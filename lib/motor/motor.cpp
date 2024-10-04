@@ -27,6 +27,11 @@ void motorInit(int leftMotorPin, int rightMotorPin)
 
 void motorUpdate(int adjustment)
 {
+    if (adjustment == 0) {
+        setDutyCycle(MAX_DUTY_CYCLE, MAX_DUTY_CYCLE);
+        return;
+    }
+    
     dutyCycleL = baseSpeed - adjustment;
     dutyCycleR = baseSpeed + adjustment;
 

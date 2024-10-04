@@ -33,6 +33,8 @@ int tcrt_calculate_error(struct tcrt_sensor_array_t* tcrt)
     for (int i = 0; i < tcrt->sensorCount; i++)
     {
         // solo suma los sensores activos (estado bajo)
+        // linea blanca: estado bajo
+        // linea negra: estado alto
         if(!digitalRead(tcrt->pins[i]))
         {
             error += sensorWeights[i];
